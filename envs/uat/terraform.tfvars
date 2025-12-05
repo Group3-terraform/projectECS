@@ -1,0 +1,10 @@
+project     = "group3"
+environment = "uat"
+region      = "ap-southeast-1"
+
+zone_id     = "Z07852252OWMU8O090PPL"
+domain_name = "api.uat.theareak.click"
+
+service_a_image = "570430250751.dkr.ecr.ap-southeast-1.amazonaws.com/service-a:uat-v1.0.7"
+service_b_image = "570430250751.dkr.ecr.ap-southeast-1.amazonaws.com/service-b:uat-v1.0.7"
+service_c_image = "570430250751.dkr.ecr.ap-southeast-1.amazonaws.com/service-c:uat-v1.0.7"

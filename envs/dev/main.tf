@@ -1,0 +1,99 @@
+########################################
+# Load modules
+########################################
+
+module "vpc" {
+  source      = "../../modules/vpc"
+  project     = var.project
+  environment = var.environment
+  region      = var.region
+}
+
+module "security" {
+  source          = "../../modules/security"
+  vpc_id          = module.vpc.vpc_id
+  project         = var.project
+  environment     = var.environment
+}
+
+module "iam" {
+  source      = "../../modules/iam"
+  project     = var.project
+  environment = var.environment
+}
+
+module "acm" {
+  source      = "../../modules/acm"
+  domain_name = var.domain_name
+  zone_id     = var.zone_id
+  region      = var.region
+}
+
+module "alb" {
+  source              = "../../modules/alb"
+  vpc_id              = module.vpc.vpc_id
+  public_subnets      = module.vpc.public_subnets
+  acm_certificate_arn = module.acm.acm_arn
+  project             = var.project
+  environment         = var.environment
+}
+
+module "route53" {
+  source      = "../../modules/route53"
+  zone_id     = var.zone_id
+  alb_dns     = module.alb.alb_dns
+  domain_name = var.domain_name
+}
+
+module "ecs" {
+  source               = "../../modules/ecs"
+  project              = var.project
+  environment          = var.environment
+  region               = var.region
+
+  service_a_image = var.service_a_image
+  service_b_image = var.service_b_image
+  service_c_image = var.service_c_image
+
+  private_subnets = module.vpc.private_subnets
+  security_groups = [module.security.ecs_sg_id]
+
+  tg_service_a = module.alb.tg_service_a
+  tg_service_b = module.alb.tg_service_b
+  tg_service_c = module.alb.tg_service_c
+
+  alb_listener = module.alb.https_listener_arn
+
+  ecs_task_role           = module.iam.ecs_task_role
+  ecs_task_execution_role = module.iam.ecs_task_execution_role
+
+  common_env = [
+    { name = "ENV",        value = var.environment },
+    { name = "PROJECT",    value = var.project },
+    { name = "REGION",     value = var.region }
+  ]
+}
+
+########################################
+# OUTPUTS
+########################################
+
+output "alb_url" {
+  value = module.alb.alb_dns
+}
+
+output "api_base" {
+  value = "https://${var.domain_name}"
+}
+
+output "service_a_url" {
+  value = "https://${var.domain_name}/a"
+}
+
+output "service_b_url" {
+  value = "https://${var.domain_name}/b"
+}
+
+output "service_c_url" {
+  value = "https://${var.domain_name}/c"
+}
