@@ -43,18 +43,18 @@ module "acm" {
 }
 
 
-module "alb" {
-  source       = "../../modules/alb"
-  project_name = var.project_name
-  environment  = var.environment
+# module "alb" {
+#   source       = "../../modules/alb"
+#   project_name = var.project_name
+#   environment  = var.environment
 
-  vpc_id         = module.vpc.vpc_id
-  public_subnets = module.vpc.public_subnets
+#   vpc_id         = module.vpc.vpc_id
+#   public_subnets = module.vpc.public_subnets
 
-  security_groups = [module.security.alb_sg_id]
+#   security_groups = [module.security.alb_sg_id]
 
-  acm_arn = module.acm.acm_arn
-}
+#   acm_arn = module.acm.acm_arn
+# }
 
 
 module "route53" {
