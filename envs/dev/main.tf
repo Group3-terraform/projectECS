@@ -1,11 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket         = "group3-tfstate-dev"
-    key            = "ecs/terraform.tfstate"
-    region         = "ap-southeast-1"
-    dynamodb_table = "group3-tfstate-lock"
-  }
-}
 
 provider "aws" {
   region = var.region
@@ -15,10 +7,10 @@ provider "aws" {
 # VPC
 # ----------------------
 module "vpc" {
-  source        = "../../modules/vpc"
-  project_name  = var.project_name
-  environment   = var.environment
-  region        = var.region
+  source      = "../../modules/vpc"
+  project     = var.project_name
+  environment = var.environment
+  region      = var.region
 }
 
 # ----------------------
