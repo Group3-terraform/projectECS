@@ -1,11 +1,17 @@
+#######################################
+# Terraform + Backend
+#######################################
+terraform {
+  required_version = ">= 1.5"
+}
 
 provider "aws" {
   region = var.region
 }
 
-# ----------------------
+#######################################
 # VPC
-# ----------------------
+#######################################
 module "vpc" {
   source      = "../../modules/vpc"
   project     = var.project_name
@@ -13,84 +19,111 @@ module "vpc" {
   region      = var.region
 }
 
-# ----------------------
-# SECURITY
-# ----------------------
+#######################################
+# SECURITY GROUPS
+#######################################
 module "security" {
-  source       = "../../modules/security"
-  vpc_id       = module.vpc.vpc_id
-  project_name = var.project_name
-  environment  = var.environment
+  source      = "../../modules/security"
+  project     = var.project_name
+  environment = var.environment
+  vpc_id      = module.vpc.vpc_id
 }
 
-# ----------------------
+#######################################
+# IAM (ECS Roles)
+#######################################
+module "iam" {
+  source      = "../../modules/iam"
+  project     = var.project_name
+  environment = var.environment
+}
+
+#######################################
 # ACM Certificate
-# ----------------------
+#######################################
 module "acm" {
-  source       = "../../modules/acm"
-  project_name = var.project_name
-  environment  = var.environment
-  domain       = var.domain
-  zone_id      = var.zone_id
+  source      = "../../modules/acm"
+  project     = var.project_name
+  environment = var.environment
+  domain      = var.domain_name
+  zone_id     = var.zone_id
 }
 
-# ----------------------
+#######################################
 # ALB
-# ----------------------
+#######################################
 module "alb" {
   source          = "../../modules/alb"
-  project_name    = var.project_name
+  project         = var.project_name
   environment     = var.environment
   vpc_id          = module.vpc.vpc_id
   public_subnets  = module.vpc.public_subnets
-  security_groups = [module.security.alb_sg_id]
+  security_groups = module.security.alb_sg_id
   acm_arn         = module.acm.certificate_arn
 }
 
-# ----------------------
-# IAM
-# ----------------------
-module "iam" {
-  source        = "../../modules/iam"
-  project_name = var.project_name
-  environment  = var.environment
+#######################################
+# Route53 (api.dev.theareak.click)
+#######################################
+module "route53" {
+  source      = "../../modules/route53"
+  project     = var.project_name
+  environment = var.environment
+  domain      = var.domain_name
+  zone_id     = var.zone_id
+  alb_dns     = module.alb.alb_dns_name
+  alb_zone_id = module.alb.alb_zone_id
 }
 
-# ----------------------
-# ECS
-# ----------------------
+#######################################
+# ECS Services
+#######################################
 module "ecs" {
-  source              = "../../modules/ecs"
-  project_name        = var.project_name
-  environment         = var.environment
-  vpc_id              = module.vpc.vpc_id
-  private_subnets     = module.vpc.private_subnets
-  alb_listener_arn    = module.alb.https_listener_arn
-  task_execution_role = module.iam.ecs_task_execution_role_arn
-  task_role           = module.iam.ecs_task_role_arn
+  source      = "../../modules/ecs"
 
+  project     = var.project_name
+  environment = var.environment
+  region      = var.region
+
+  vpc_id           = module.vpc.vpc_id
+  private_subnets  = module.vpc.private_subnets
+  security_groups  = module.security.ecs_service_sg_id
+
+  ecs_task_execution_role = module.iam.ecs_task_execution_role_arn
+  ecs_task_role           = module.iam.ecs_task_role_arn
+
+  alb_listener = module.alb.https_listener_arn
+
+  # Target groups from ALB module
+  tg_service_a = module.alb.tg_service_a_arn
+  tg_service_b = module.alb.tg_service_b_arn
+  tg_service_c = module.alb.tg_service_c_arn
+
+  # Container images (DEV)
   service_a_image = var.service_a_image
   service_b_image = var.service_b_image
   service_c_image = var.service_c_image
 }
 
-# ----------------------
-# Route 53
-# ----------------------
-module "route53" {
-  source       = "../../modules/route53"
-  project_name = var.project_name
-  environment  = var.environment
-  domain       = var.domain
-  zone_id      = var.zone_id
-  alb_dns_name = module.alb.dns_name
-  alb_zone_id  = module.alb.zone_id
+#######################################
+# OUTPUTS
+#######################################
+output "load_balancer_dns" {
+  value = module.alb.alb_dns_name
 }
 
-# ----------------------
-# OUTPUTS
-# ----------------------
-output "alb_url"     { value = "https://${var.domain}" }
-output "service_a"   { value = "https://${var.domain}/a" }
-output "service_b"   { value = "https://${var.domain}/b" }
-output "service_c"   { value = "https://${var.domain}/c" }
+output "api_base" {
+  value = "https://${var.domain_name}"
+}
+
+output "service_a_url" {
+  value = "https://${var.domain_name}/a"
+}
+
+output "service_b_url" {
+  value = "https://${var.domain_name}/b"
+}
+
+output "service_c_url" {
+  value = "https://${var.domain_name}/c"
+}
