@@ -26,5 +26,4 @@ variable "alb_zone_id" {
 
 variable "project_name" { type = string }
 
-variable "domain"       { type = string }
 
