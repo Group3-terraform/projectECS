@@ -23,11 +23,17 @@ module "iam" {
 }
 
 module "acm" {
-  source      = "../../modules/acm"
-  domain_name = var.domain_name
-  zone_id     = var.zone_id
-  region      = var.region
+  source       = "../../modules/acm"
+  project_name = var.project_name
+  environment  = var.environment
+
+  # Single domain for DEV
+  domain       = "api.dev.theareak.click"
+
+  # Your Route53 Hosted Zone ID
+  zone_id      = "Z07852252OWMU8O090PPL"
 }
+
 
 module "alb" {
   source              = "../../modules/alb"
