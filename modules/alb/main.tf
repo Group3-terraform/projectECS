@@ -1,93 +1,51 @@
-###############################################
-# Application Load Balancer (Public)
-###############################################
-
-resource "aws_lb" "api" {
+##############################
+# Application Load Balancer
+##############################
+resource "aws_lb" "alb" {
   name               = "${var.project_name}-${var.environment}-alb"
-  internal           = false
   load_balancer_type = "application"
+  internal           = false
   security_groups    = var.security_groups
   subnets            = var.public_subnets
 
   enable_deletion_protection = false
+
+  tags = {
+    Project     = var.project_name
+    Environment = var.environment
+  }
 }
 
-###############################################
-# ALB Target Groups (Service A, B, C)
-###############################################
-
+##############################
+# TARGET GROUPS (A / B / C)
+##############################
 resource "aws_lb_target_group" "service_a" {
-  name     = "${var.project_name}-${var.environment}-svc-a"
-  port     = 5000
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "${var.project_name}-${var.environment}-tg-a"
+  port        = 5000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
   target_type = "ip"
-
-  health_check {
-    path                = "/health"
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
-    timeout             = 5
-    interval            = 15
-  }
 }
 
 resource "aws_lb_target_group" "service_b" {
-  name     = "${var.project_name}-${var.environment}-svc-b"
-  port     = 5000
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "${var.project_name}-${var.environment}-tg-b"
+  port        = 5000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
   target_type = "ip"
-
-  health_check {
-    path                = "/health"
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
-    timeout             = 5
-    interval            = 15
-  }
 }
 
 resource "aws_lb_target_group" "service_c" {
-  name     = "${var.project_name}-${var.environment}-svc-c"
-  port     = 5000
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "${var.project_name}-${var.environment}-tg-c"
+  port        = 5000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
   target_type = "ip"
-
-  health_check {
-    path                = "/health"
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
-    timeout             = 5
-    interval            = 15
-  }
 }
 
-###############################################
-# Listener: HTTP (80) → Redirect to HTTPS (443)
-###############################################
-
-resource "aws_lb_listener" "https_redirect" {
-  load_balancer_arn = aws_lb.api.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-
-    redirect {
-      protocol   = "HTTPS"
-      port       = "443"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-###############################################
-# Listener: HTTPS (443)
-###############################################
-
+##############################
+# HTTPS LISTENER (443)
+##############################
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 443
@@ -101,16 +59,11 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-
-
-###############################################
-# Routing rules for /a, /b, /c
-###############################################
-
-resource "aws_lb_listener_rule" "route_a" {
+##############################
+# PATH RULES (a,b,c)
+##############################
+resource "aws_lb_listener_rule" "service_a" {
   listener_arn = aws_lb_listener.https.arn
-
-  priority = 10
 
   action {
     type             = "forward"
@@ -119,15 +72,13 @@ resource "aws_lb_listener_rule" "route_a" {
 
   condition {
     path_pattern {
-      values = ["/a/*", "/a"]
+      values = ["/a*"]
     }
   }
 }
 
-resource "aws_lb_listener_rule" "route_b" {
+resource "aws_lb_listener_rule" "service_b" {
   listener_arn = aws_lb_listener.https.arn
-
-  priority = 20
 
   action {
     type             = "forward"
@@ -136,15 +87,13 @@ resource "aws_lb_listener_rule" "route_b" {
 
   condition {
     path_pattern {
-      values = ["/b/*", "/b"]
+      values = ["/b*"]
     }
   }
 }
 
-resource "aws_lb_listener_rule" "route_c" {
+resource "aws_lb_listener_rule" "service_c" {
   listener_arn = aws_lb_listener.https.arn
-
-  priority = 30
 
   action {
     type             = "forward"
@@ -153,8 +102,34 @@ resource "aws_lb_listener_rule" "route_c" {
 
   condition {
     path_pattern {
-      values = ["/c/*", "/c"]
+      values = ["/c*"]
     }
   }
 }
 
+##############################
+# OUTPUTS
+##############################
+output "alb_dns_name" {
+  value = aws_lb.alb.dns_name
+}
+
+output "alb_zone_id" {
+  value = aws_lb.alb.zone_id
+}
+
+output "tg_service_a_arn" {
+  value = aws_lb_target_group.service_a.arn
+}
+
+output "tg_service_b_arn" {
+  value = aws_lb_target_group.service_b.arn
+}
+
+output "tg_service_c_arn" {
+  value = aws_lb_target_group.service_c.arn
+}
+
+output "https_listener_arn" {
+  value = aws_lb_listener.https.arn
+}

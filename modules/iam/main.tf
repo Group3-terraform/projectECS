@@ -1,22 +1,6 @@
-resource "aws_iam_role" "ecs_task_execution" {
-  name = "${var.project_name}-${var.environment}-ecs-task-exec"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-      Action = "sts:AssumeRole"
-    }]
-  })
-
-  tags = {
-    Project     = var.project_name
-    Environment = var.environment
-  }
-}
+##############################
+# ECS TASK EXECUTION ROLE
+##############################
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.project_name}-${var.environment}-ecs-task-exec"
 
@@ -24,17 +8,10 @@ resource "aws_iam_role" "ecs_task_execution_role" {
     Version = "2012-10-17"
     Statement = [{
       Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
+      Principal = { Service = "ecs-tasks.amazonaws.com" }
       Action = "sts:AssumeRole"
     }]
   })
-
-  tags = {
-    Project     = var.project_name
-    Environment = var.environment
-  }
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
@@ -42,3 +19,29 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+##############################
+# ECS TASK ROLE
+##############################
+resource "aws_iam_role" "ecs_task_role" {
+  name = "${var.project_name}-${var.environment}-ecs-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = { Service = "ecs-tasks.amazonaws.com" }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+##############################
+# OUTPUTS
+##############################
+output "ecs_task_execution_role_arn" {
+  value = aws_iam_role.ecs_task_execution_role.arn
+}
+
+output "ecs_task_role_arn" {
+  value = aws_iam_role.ecs_task_role.arn
+}
