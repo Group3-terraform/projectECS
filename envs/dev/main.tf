@@ -49,10 +49,12 @@ module "route53" {
   project_name = var.project_name
   environment  = var.environment
 
-  domain       = var.domain_name   # example: api.dev.theareak.click
+  domain       = var.domain_name
 
   alb_dns_name = module.alb.alb_dns_name
   alb_zone_id  = module.alb.alb_zone_id
+
+  zone_id      = var.zone_id
 }
 
 
