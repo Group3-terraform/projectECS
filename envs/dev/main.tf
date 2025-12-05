@@ -45,11 +45,16 @@ module "alb" {
 }
 
 module "route53" {
-  source      = "../../modules/route53"
-  zone_id     = var.zone_id
-  alb_dns     = module.alb.alb_dns
-  domain_name = var.domain_name
+  source       = "../../modules/route53"
+  project_name = var.project_name
+  environment  = var.environment
+
+  domain       = var.domain_name   # example: api.dev.theareak.click
+
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id  = module.alb.alb_zone_id
 }
+
 
 module "ecs" {
   source               = "../../modules/ecs"

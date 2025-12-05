@@ -22,3 +22,9 @@ variable "alb_zone_id" {
   type        = string
   description = "Route53 zone ID of the ALB"
 }
+
+
+variable "project_name" { type = string }
+
+variable "domain"       { type = string }
+
