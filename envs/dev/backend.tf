@@ -3,6 +3,6 @@ terraform {
     bucket         = "group3-tfstate-dev"
     key            = "dev/terraform.tfstate"
     region         = "ap-southeast-1"
-    use_lockfile   = true
+    dynamodb_table = "group3-tfstate-lock" 
   }
 }
