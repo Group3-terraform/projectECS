@@ -1,5 +1,5 @@
 #######################################
-# Terraform Backend (defined in backend.tf)
+# Terraform + Backend
 #######################################
 terraform {
   required_version = ">= 1.5"
@@ -30,7 +30,7 @@ module "security" {
 }
 
 #######################################
-# IAM (ECS Task Roles)
+# IAM
 #######################################
 module "iam" {
   source      = "../../modules/iam"
@@ -50,7 +50,7 @@ module "acm" {
 }
 
 #######################################
-# ALB + Listener + Target Groups
+# ALB
 #######################################
 module "alb" {
   source          = "../../modules/alb"
@@ -63,23 +63,26 @@ module "alb" {
 }
 
 #######################################
-# Route53 DNS Record (api.dev.theareak.click)
+# Route53 — DNS for api.dev.theareak.click
 #######################################
 module "route53" {
   source      = "../../modules/route53"
+
   project     = var.project_name
   environment = var.environment
+
   domain      = var.domain_name
   zone_id     = var.zone_id
-  alb_dns     = module.alb.alb_dns_name
-  alb_zone_id = module.alb.alb_zone_id
+
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id  = module.alb.alb_zone_id
 }
 
 #######################################
-# ECS Services (A, B, C)
+# ECS Services
 #######################################
 module "ecs" {
-  source = "../../modules/ecs"
+  source      = "../../modules/ecs"
 
   project     = var.project_name
   environment = var.environment
@@ -96,12 +99,13 @@ module "ecs" {
   tg_service_b = module.alb.tg_service_b_arn
   tg_service_c = module.alb.tg_service_c_arn
 
-  alb_listener            = module.alb.https_listener_arn
+  alb_listener = module.alb.https_listener_arn
+
   ecs_task_execution_role = module.iam.ecs_task_execution_role_arn
   ecs_task_role           = module.iam.ecs_task_role_arn
 
   common_env = [
-    { name = "PROJECT",    value = var.project_name },
+    { name = "PROJECT",     value = var.project_name },
     { name = "ENVIRONMENT", value = var.environment }
   ]
 }
