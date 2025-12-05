@@ -1,9 +1,16 @@
-project     = "group3"
-environment = "uat"
-region      = "ap-southeast-1"
+project_name = "group3"
+environment  = "uat"
+region       = "ap-southeast-1"
 
-zone_id     = "Z07852252OWMU8O090PPL"
 domain_name = "api.uat.theareak.click"
+zone_id     = "Z07852252OWMU8O090PPL"
+
+vpc_cidr = "10.0.0.0/16"
+
+public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnets = ["10.0.11.0/24", "10.0.12.0/24"]
+
+azs = ["ap-southeast-1a", "ap-southeast-1b"]
 
 service_a_image = "570430250751.dkr.ecr.ap-southeast-1.amazonaws.com/service-a:uat-v1.0.7"
 service_b_image = "570430250751.dkr.ecr.ap-southeast-1.amazonaws.com/service-b:uat-v1.0.7"

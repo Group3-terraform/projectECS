@@ -3,7 +3,7 @@
 ###############################################
 
 resource "aws_lb" "api" {
-  name               = "${var.project}-${var.environment}-alb"
+  name               = "${var.project_name}-${var.environment}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = var.security_groups
@@ -17,7 +17,7 @@ resource "aws_lb" "api" {
 ###############################################
 
 resource "aws_lb_target_group" "service_a" {
-  name     = "${var.project}-${var.environment}-svc-a"
+  name     = "${var.project_name}-${var.environment}-svc-a"
   port     = 5000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -33,7 +33,7 @@ resource "aws_lb_target_group" "service_a" {
 }
 
 resource "aws_lb_target_group" "service_b" {
-  name     = "${var.project}-${var.environment}-svc-b"
+  name     = "${var.project_name}-${var.environment}-svc-b"
   port     = 5000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -49,7 +49,7 @@ resource "aws_lb_target_group" "service_b" {
 }
 
 resource "aws_lb_target_group" "service_c" {
-  name     = "${var.project}-${var.environment}-svc-c"
+  name     = "${var.project_name}-${var.environment}-svc-c"
   port     = 5000
   protocol = "HTTP"
   vpc_id   = var.vpc_id

@@ -29,3 +29,13 @@ variable "service_b_image" {
 variable "service_c_image" {
   type = string
 }
+
+variable "vpc_cidr" {}
+variable "public_subnets" { type = list(string) }
+variable "private_subnets" { type = list(string) }
+variable "azs" { type = list(string) }
+
+variable "domain_name" {
+  type = string
+  description = "Full domain such as api.dev.theareak.click"
+}

@@ -1,5 +1,5 @@
 #######################################
-# Terraform + Backend
+# Terraform
 #######################################
 terraform {
   required_version = ">= 1.5"
@@ -13,40 +13,47 @@ provider "aws" {
 # VPC
 #######################################
 module "vpc" {
-  source      = "../../modules/vpc"
-  project     = var.project_name
-  environment = var.environment
-  region      = var.region
+  source = "../../modules/vpc"
+
+  project = var.project_name      # matches variable "project"
+  env     = var.environment       # matches variable "env"
+
+  vpc_cidr = var.vpc_cidr
+  public_subnets  = var.public_subnets
+  private_subnets = var.private_subnets
+  azs = var.azs
 }
+
 
 #######################################
 # SECURITY GROUPS
 #######################################
 module "security" {
-  source      = "../../modules/security"
-  project     = var.project_name
-  environment = var.environment
-  vpc_id      = module.vpc.vpc_id
+  source       = "../../modules/security"
+  project_name = var.project_name
+  environment  = var.environment
+  vpc_id       = module.vpc.vpc_id
 }
 
 #######################################
-# IAM
+# IAM (ECS Execution Role)
 #######################################
 module "iam" {
-  source      = "../../modules/iam"
-  project     = var.project_name
-  environment = var.environment
+  source       = "../../modules/iam"
+  project_name = var.project_name
+  environment  = var.environment
 }
 
 #######################################
 # ACM Certificate
 #######################################
 module "acm" {
-  source      = "../../modules/acm"
-  project     = var.project_name
-  environment = var.environment
-  domain      = var.domain_name
-  zone_id     = var.zone_id
+  source       = "../../modules/acm"
+  project_name = var.project_name
+  environment  = var.environment
+
+  domain  = var.domain_name
+  zone_id = var.zone_id
 }
 
 #######################################
@@ -54,32 +61,33 @@ module "acm" {
 #######################################
 module "alb" {
   source          = "../../modules/alb"
-  project         = var.project_name
+  project_name    = var.project_name
   environment     = var.environment
+
   vpc_id          = module.vpc.vpc_id
   public_subnets  = module.vpc.public_subnets
-  security_groups = [module.security.alb_sg_id]
+
+  security_groups = module.security.alb_sg_id
   acm_arn         = module.acm.certificate_arn
 }
 
 #######################################
-# Route53 — DNS for api.dev.theareak.click
+# Route53
 #######################################
 module "route53" {
-  source      = "../../modules/route53"
+  source       = "../../modules/route53"
+  project_name = var.project_name
+  environment  = var.environment
 
-  project     = var.project_name
-  environment = var.environment
-
-  domain      = var.domain_name
-  zone_id     = var.zone_id
+  domain       = var.domain_name
+  zone_id      = var.zone_id
 
   alb_dns_name = module.alb.alb_dns_name
   alb_zone_id  = module.alb.alb_zone_id
 }
 
 #######################################
-# ECS Services
+# ECS Services (a, b, c)
 #######################################
 module "ecs" {
   source      = "../../modules/ecs"
@@ -105,7 +113,7 @@ module "ecs" {
   ecs_task_role           = module.iam.ecs_task_role_arn
 
   common_env = [
-    { name = "PROJECT",     value = var.project_name },
+    { name = "PROJECT",    value = var.project_name },
     { name = "ENVIRONMENT", value = var.environment }
   ]
 }
