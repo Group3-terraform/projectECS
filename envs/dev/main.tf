@@ -2,19 +2,27 @@
 # Load modules
 ########################################
 
-module "vpc" {
-  source      = "../../modules/vpc"
-  project     = var.project
-  environment = var.environment
-  region      = var.region
+module "alb" {
+  source       = "../../modules/alb"
+  project_name = var.project_name
+  environment  = var.environment
+
+  vpc_id         = module.vpc.vpc_id
+  public_subnets = module.vpc.public_subnets
+
+  security_groups = [module.security.alb_sg_id]
+
+  acm_arn = module.acm.acm_arn
 }
 
+
 module "security" {
-  source          = "../../modules/security"
-  vpc_id          = module.vpc.vpc_id
-  project         = var.project
-  environment     = var.environment
+  source       = "../../modules/security"
+  vpc_id       = module.vpc.vpc_id
+  project_name = var.project_name
+  environment  = var.environment
 }
+
 
 module "iam" {
   source       = "../../modules/iam"
@@ -36,13 +44,18 @@ module "acm" {
 
 
 module "alb" {
-  source              = "../../modules/alb"
-  vpc_id              = module.vpc.vpc_id
-  public_subnets      = module.vpc.public_subnets
-  acm_certificate_arn = module.acm.acm_arn
-  project             = var.project
-  environment         = var.environment
+  source       = "../../modules/alb"
+  project_name = var.project_name
+  environment  = var.environment
+
+  vpc_id         = module.vpc.vpc_id
+  public_subnets = module.vpc.public_subnets
+
+  security_groups = [module.security.alb_sg_id]
+
+  acm_arn = module.acm.acm_arn
 }
+
 
 module "route53" {
   source       = "../../modules/route53"
