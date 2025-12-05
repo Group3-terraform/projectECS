@@ -11,8 +11,7 @@ variable "region" {
 }
 
 variable "domain" {
-    default = "api.dev.theareak.click"
-    type = string
+  type = string
 }
 
 variable "zone_id" {
