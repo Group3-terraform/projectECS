@@ -15,15 +15,14 @@ provider "aws" {
 module "vpc" {
   source = "../../modules/vpc"
 
-  project = var.project_name      # matches variable "project"
-  env     = var.environment       # matches variable "env"
+  project = var.project_name
+  env     = var.environment
 
-  vpc_cidr = var.vpc_cidr
+  vpc_cidr        = var.vpc_cidr
   public_subnets  = var.public_subnets
   private_subnets = var.private_subnets
-  azs = var.azs
+  azs             = var.azs
 }
-
 
 #######################################
 # SECURITY GROUPS
@@ -36,7 +35,7 @@ module "security" {
 }
 
 #######################################
-# IAM (ECS Execution Role)
+# IAM (ECS Roles)
 #######################################
 module "iam" {
   source       = "../../modules/iam"
@@ -60,12 +59,12 @@ module "acm" {
 # ALB
 #######################################
 module "alb" {
-  source          = "../../modules/alb"
-  project_name    = var.project_name
-  environment     = var.environment
+  source       = "../../modules/alb"
+  project_name = var.project_name
+  environment  = var.environment
 
-  vpc_id          = module.vpc.vpc_id
-  public_subnets  = module.vpc.public_subnets
+  vpc_id         = module.vpc.vpc_id
+  public_subnets = module.vpc.public_subnets
 
   security_groups = module.security.alb_sg_id
   acm_arn         = module.acm.certificate_arn
@@ -79,8 +78,8 @@ module "route53" {
   project_name = var.project_name
   environment  = var.environment
 
-  domain       = var.domain_name
-  zone_id      = var.zone_id
+  domain  = var.domain_name
+  zone_id = var.zone_id
 
   alb_dns_name = module.alb.alb_dns_name
   alb_zone_id  = module.alb.alb_zone_id
@@ -90,7 +89,7 @@ module "route53" {
 # ECS Services (a, b, c)
 #######################################
 module "ecs" {
-  source      = "../../modules/ecs"
+  source = "../../modules/ecs"
 
   project     = var.project_name
   environment = var.environment
@@ -113,8 +112,8 @@ module "ecs" {
   ecs_task_role           = module.iam.ecs_task_role_arn
 
   common_env = [
-    { name = "PROJECT",    value = var.project_name },
-    { name = "ENVIRONMENT", value = var.environment }
+    { name = "PROJECT",     value = var.project_name },
+    { name = "ENVIRONMENT", value = var.environment },
   ]
 }
 

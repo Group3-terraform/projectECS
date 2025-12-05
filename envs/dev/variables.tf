@@ -1,41 +1,75 @@
+#######################################
+# Root variables for DEV env
+#######################################
+
 variable "project_name" {
-  type = string
+  description = "Project name (e.g., group3)"
+  type        = string
 }
 
 variable "environment" {
-  type = string
+  description = "Environment (e.g., dev, uat, prod)"
+  type        = string
 }
 
 variable "region" {
-  type = string
+  description = "AWS region (e.g., ap-southeast-1)"
+  type        = string
 }
 
-variable "domain" {
-  type = string
+#######################################
+# Domain / Route53 / ACM
+#######################################
+
+variable "domain_name" {
+  description = "FQDN for this environment, e.g. api.dev.theareak.click"
+  type        = string
 }
 
 variable "zone_id" {
-  type = string
+  description = "Route53 hosted zone ID for theareak.click"
+  type        = string
 }
 
+#######################################
+# VPC
+#######################################
+
+variable "vpc_cidr" {
+  description = "VPC CIDR block"
+  type        = string
+}
+
+variable "public_subnets" {
+  description = "Public subnet CIDRs"
+  type        = list(string)
+}
+
+variable "private_subnets" {
+  description = "Private subnet CIDRs"
+  type        = list(string)
+}
+
+variable "azs" {
+  description = "Availability zones"
+  type        = list(string)
+}
+
+#######################################
+# ECS service images
+#######################################
+
 variable "service_a_image" {
-  type = string
+  description = "ECR image for service A"
+  type        = string
 }
 
 variable "service_b_image" {
-  type = string
+  description = "ECR image for service B"
+  type        = string
 }
 
 variable "service_c_image" {
-  type = string
-}
-
-variable "vpc_cidr" {}
-variable "public_subnets" { type = list(string) }
-variable "private_subnets" { type = list(string) }
-variable "azs" { type = list(string) }
-
-variable "domain_name" {
-  type = string
-  description = "Full domain such as api.dev.theareak.click"
+  description = "ECR image for service C"
+  type        = string
 }
