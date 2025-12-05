@@ -52,9 +52,10 @@ module "acm" {
   project_name = var.project_name
   environment  = var.environment
 
-  domain  = var.domain_name
-  zone_id = var.zone_id
+  domain_name = var.domain_name
+  zone_id     = var.zone_id
 }
+
 
 #######################################
 # ALB
@@ -79,12 +80,13 @@ module "route53" {
   project_name = var.project_name
   environment  = var.environment
 
-  domain       = var.domain_name
-  zone_id      = var.zone_id
+  domain_name = var.domain_name
+  zone_id     = var.zone_id
 
   alb_dns_name = module.alb.alb_dns_name
   alb_zone_id  = module.alb.alb_zone_id
 }
+
 
 #######################################
 # ECS Services (a, b, c)

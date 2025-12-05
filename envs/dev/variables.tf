@@ -10,8 +10,12 @@ variable "region" {
   type = string
 }
 
-variable "domain" {
-  type = string
+# REMOVE OLD 'domain'
+# variable "domain" { type = string }
+
+variable "domain_name" {
+  type        = string
+  description = "Full domain such as api.dev.theareak.click"
 }
 
 variable "zone_id" {
@@ -31,11 +35,15 @@ variable "service_c_image" {
 }
 
 variable "vpc_cidr" {}
-variable "public_subnets" { type = list(string) }
-variable "private_subnets" { type = list(string) }
-variable "azs" { type = list(string) }
 
-variable "domain_name" {
-  type = string
-  description = "Full domain such as api.dev.theareak.click"
+variable "public_subnets" {
+  type = list(string)
+}
+
+variable "private_subnets" {
+  type = list(string)
+}
+
+variable "azs" {
+  type = list(string)
 }

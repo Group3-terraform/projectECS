@@ -3,10 +3,7 @@ variable "zone_id" {
   description = "Route53 Hosted Zone ID (Zxxxxxxxxx)"
 }
 
-variable "domain" {
-  type        = string
-  description = "Base domain, example: theareak.click"
-}
+
 
 variable "environment" {
   type        = string
@@ -26,4 +23,4 @@ variable "alb_zone_id" {
 
 variable "project_name" { type = string }
 
-
+variable "domain_name" { type = string }

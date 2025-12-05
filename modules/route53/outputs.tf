@@ -1,5 +1,5 @@
 output "api_domain" {
-  value = "api.${var.environment}.${var.domain}"
+  value = "api.${var.environment}.${var.domain_name}"
 }
 
 output "route53_record_fqdn" {

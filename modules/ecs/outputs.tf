@@ -13,3 +13,7 @@ output "service_b_name" {
 output "service_c_name" {
   value = aws_ecs_service.service_c.name
 }
+
+output "ecs_sg_id" {
+  value = aws_security_group.ecs_sg.id
+}
