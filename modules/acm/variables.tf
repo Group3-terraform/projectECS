@@ -8,10 +8,8 @@ variable "environment" {
 
 variable "domain" {
   type = string
-  description = "Base domain name (example: theareak.click)"
 }
 
 variable "zone_id" {
   type = string
-  description = "Route53 Hosted Zone ID"
 }
