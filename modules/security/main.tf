@@ -66,12 +66,12 @@ resource "aws_security_group" "ecs_tasks_sg" {
 }
 
 resource "aws_security_group" "ecs_sg" {
-  name        = "${var.project_name}-${var.environment}-ecs-sg"
-  vpc_id      = var.vpc_id
+  name   = "${var.project_name}-${var.environment}-ecs-sg"
+  vpc_id = var.vpc_id
 
   ingress {
-    from_port   = 5000
-    to_port     = 5000
+    from_port   = 0
+    to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = ["10.0.0.0/16"]
   }
@@ -83,4 +83,5 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 

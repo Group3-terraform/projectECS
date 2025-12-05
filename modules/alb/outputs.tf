@@ -18,3 +18,8 @@ output "tg_service_c_arn" {
   value = aws_lb_target_group.service_c.arn
 }
 
+output "https_listener_arn" {
+  value = aws_lb_listener.https.arn
+}
+
+

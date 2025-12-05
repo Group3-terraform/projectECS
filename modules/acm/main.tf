@@ -33,4 +33,14 @@ resource "aws_acm_certificate_validation" "this" {
 resource "aws_acm_certificate" "api_cert" {
   domain_name       = var.domain_name
   validation_method = "DNS"
+
+  tags = {
+    Project     = var.project_name
+    Environment = var.environment
+  }
 }
+
+resource "aws_acm_certificate_validation" "api_cert_validation" {
+  certificate_arn = aws_acm_certificate.api_cert.arn
+}
+
